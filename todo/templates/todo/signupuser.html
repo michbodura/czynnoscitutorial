@@ -1,0 +1,46 @@
+{% extends 'todo/base.html' %}
+
+{% block content %}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5">
+        <h2>Zarejestruj się</h2>
+    </div>
+</div>
+
+<div class="row justify-content-center mt-5">
+
+    <div class="col-md-5">
+        {% if error %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+        {% endif %}
+        <form method="POST" action="">
+            {%csrf_token%}
+            <div class="form-group">
+                <label for="username">Użytkownik</label>
+                <input type="text" name="username" class="form-control" id="username" aria-describedby="usernameHelp">
+                <small id="usernameHelp" class="form-text text-muted">Nazwa użytkownika nie może być taka sama. Wpisz inną</small>
+            </div>
+            <div class="form-group">
+                <label for="password1">Hasło</label>
+                <input type="password" name="password1" class="form-control" id="password1">
+            </div>
+            <div class="form-group">
+                <label for="password2">Potwierdź hasło</label>
+                <input type="password" name="password2" class="form-control" id="password2">
+            </div>
+            <button type="submit">Zarejestruj się</button>
+        </form>
+        <hr>
+        <div class="text-center">
+            Masz konto? <a href="{% url 'loginuser' %}">Zaloguj się</a>
+        </div>
+        
+    </div>
+</div>
+
+
+{% endblock %}
+
