@@ -15,19 +15,15 @@ def home(request):
 def signupuser(request):
     if request.method == 'GET':
         return render(request,'todo/signupuser.html',{'form':UserCreationForm()})
-    else:
-        # Tworzenie nowego użytkownika
-        if request.POST['password1'] == request.POST['password2']:
-            try:
-                user = User.objects.create_user(request.POST['username'], password=request.POST['password1'])
-                user.save()
-                login(request, user)
-                return redirect('currenttodos')
-            except IntegrityError:
-                return render(request,'todo/signupuser.html',{'form':UserCreationForm(),'error':'Ten użytkownik już istnieje. Wybierz nowego użytkownika'})
-        else:
-            # Komunikat o niedopasowanych hasłach nowego użytkownika
-           return render(request,'todo/signupuser.html',{'form':UserCreationForm(),'error':'Hasła nie są zgodne'})
+    if request.POST['password1'] != request.POST['password2']:
+        return render(request,'todo/signupuser.html',{'form':UserCreationForm(),'error':'Hasła nie są zgodne'})
+    try:
+        user = User.objects.create_user(request.POST['username'], password=request.POST['password1'])
+        user.save()
+        login(request, user)
+        return redirect('currenttodos')
+    except IntegrityError:
+        return render(request,'todo/signupuser.html',{'form':UserCreationForm(),'error':'Ten użytkownik już istnieje. Wybierz nowego użytkownika'})
 @login_required
 def currenttodos(request):
     todos = Todo.objects.filter(user=request.user,datecompleted__isnull=True)
@@ -72,24 +68,21 @@ def logoutuser(request):
 def createtodo(request):
     if request.method == 'GET':
         return render(request,'todo/createtodo.html',{'form':TodoForm()})
-    else:
-        try:
-            form = TodoForm(request.POST)
-            newTodo = form.save(commit=False)
-            newTodo.user = request.user
-            newTodo.save()
-            return redirect('currenttodos')
-        except ValueError:
-            return render(request,'todo/createtodo.html',{'form':TodoForm(),'error':'Niewłaściwe dane'})
+    try:
+        form = TodoForm(request.POST)
+        newTodo = form.save(commit=False)
+        newTodo.user = request.user
+        newTodo.save()
+        return redirect('currenttodos')
+    except ValueError:
+        return render(request,'todo/createtodo.html',{'form':TodoForm(),'error':'Niewłaściwe dane'})
 
 def loginuser(request):
     if request.method == 'GET':
         return render(request,'todo/loginuser.html',{'form':AuthenticationForm()})
-    else:
-        user = authenticate(request, username=request.POST['username'],password=request.POST['password'])
-        if user is None:
-            return render(request,'todo/loginuser.html',{'form':AuthenticationForm(),'error':'Nazwa użytkownika i hasło niezgodne'})
-        else:
-            login(request, user)
-            return redirect('currenttodos')
+    user = authenticate(request, username=request.POST['username'],password=request.POST['password'])
+    if user is None:
+        return render(request,'todo/loginuser.html',{'form':AuthenticationForm(),'error':'Nazwa użytkownika i hasło niezgodne'})
+    login(request, user)
+    return redirect('currenttodos')
 
